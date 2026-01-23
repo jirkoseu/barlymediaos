@@ -1,0 +1,24 @@
+# Ignoruj všechny zipy a archivy
+*.zip
+*.rar
+*.tar
+*.gz
+
+# MacOS balast (když máš ten M4 Pro)
+.DS_Store
+
+# Next.js / Node (Frontend)
+node_modules/
+.next/
+.env
+.env.local
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Python (Backend)
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+.env
