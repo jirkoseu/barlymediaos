@@ -1,0 +1,92 @@
+version: "3.8"
+
+services:
+  # 1. Python Backend (FastAPI)
+  backend:
+    build: ./backend
+    container_name: ${PROJECT_NAME:-barlyMediaOS}_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./.env:/app/.env
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./backend:/app
+      # Teď backend vidí složku ./backend/media jako /app/media interně
+
+  # 2. Next.js Frontend (UI)
+  frontend:
+    build: ./frontend
+    container_name: ${PROJECT_NAME:-barlyMediaOS}_frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  # 3. Sdílení souborů (Samba)
+  samba:
+    image: crazymax/samba:latest
+    container_name: ${PROJECT_NAME:-barlyMediaOS}_samba
+    restart: unless-stopped
+    ports:
+      - "137:137/udp"
+      - "138:138/udp"
+      - "139:139/tcp"
+      - "4445:445/tcp"
+    environment:
+      - TZ=${TZ:-Europe/Prague}
+      # Definice sdílené složky: Název;Cesta;Browseable;Read-only;Guest;Users;Admins
+      - SAMBA_SHARE_1=${PROJECT_NAME:-barlyMedia};/data;yes;no;yes;all;none
+
+      # Globální nastavení pro macOS (Fruit)
+      - SAMBA_GLOBAL_CONFIG_vfs_objects=catia fruit streams_xattr
+      - "SAMBA_GLOBAL_CONFIG_fruit:metadata=stream"
+      - "SAMBA_GLOBAL_CONFIG_fruit:model=MacSamba"
+      - "SAMBA_GLOBAL_CONFIG_fruit:posix_rename=yes"
+      - "SAMBA_GLOBAL_CONFIG_fruit:veto_appledouble=no"
+      - "SAMBA_GLOBAL_CONFIG_fruit:wipe_intentionally_left_blank_rfork=yes"
+      - "SAMBA_GLOBAL_CONFIG_fruit:delete_empty_adfiles=yes"
+      - "SAMBA_GLOBAL_CONFIG_fruit:time_machine=yes"
+
+      # Další tvé parametry
+      - "SAMBA_GLOBAL_CONFIG_wide_links=yes"
+      - "SAMBA_GLOBAL_CONFIG_unix_extensions=no" # Nutné pro wide links!
+      - "SAMBA_GLOBAL_CONFIG_strict_locking=no"
+    volumes:
+      - ./backend/media:/data
+    # 'command' úplně smažeme, image si vše vezme z environment výše
+
+  # 4. Streamování médií (MiniDLNA)
+  minidlna:
+    image: vladgh/minidlna:latest
+    container_name: ${PROJECT_NAME:-barlyMediaOS}_minidlna
+    restart: unless-stopped
+    network_mode: "host"
+    environment:
+      - MINIDLNA_MEDIA_DIR=/media
+      - MINIDLNA_FRIENDLY_NAME=${PROJECT_NAME:-barlyMediaOS}
+      - MINIDLNA_INOTIFY=yes
+    volumes:
+      # Změněno: MiniDLNA uvidí stejnou složku v backendu
+      - ./backend/media:/media
+
+  # 5. Stahování torrentů (Transmission)
+  transmission:
+    image: lscr.io/linuxserver/transmission:latest
+    container_name: ${PROJECT_NAME:-barlyMediaOS}_transmission
+    restart: unless-stopped
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TZ:-Europe/Prague}
+      - USER=admin
+      - PASS=barly123
+    volumes:
+      - ./config/transmission:/config
+      # Změněno: Transmission stahuje přímo do backend/media
+      - ./backend/media:/downloads
+    ports:
+      - "9091:9091"
+      - "51413:51413"
+      - "51413:51413/udp"

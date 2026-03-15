@@ -2,7 +2,7 @@ import sqlite3
 import json
 from typing import Optional
 
-DB_FILE = "torrents.db"  # Přejmenováno
+DB_FILE = "mediaos.db"  # Přejmenováno
 
 
 def init_db():

@@ -1,0 +1,8 @@
+# .dockerignore v adresáři backend
+.venv/
+__pycache__/
+.idea/
+media/
+*.zip
+*.db
+.env

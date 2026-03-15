@@ -1,0 +1,7 @@
+# Ignoruj lokální média a virtuální prostředí
+backend/media/
+backend/venv/
+frontend/node_modules/
+frontend/.next/
+.git/
+.env

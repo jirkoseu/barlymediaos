@@ -6,20 +6,15 @@ class TorrentManager:
     def __init__(self):
         # --- NASTAVENÍ TRANSMISSION ---
         # Pro Mac (pokud běží daemon) obvykle 127.0.0.1
-        self.host = '127.0.0.1'
+        self.host = 'transmission'
         self.port = 9091
         # Pokud máš vypnutou autentizaci v settings.json, nech None
-        self.username = None
-        self.password = None
+        self.username = 'admin'
+        self.password = 'barly123'
 
         self.client = None
 
-        # --- TADY VLOŽ SVOJE COOKIES ---
-        # 1. Jdi na sktorrent, ujisti se, že jsi přihlášený.
-        # 2. Otevři DevTools (F12) -> Network -> Obnov stránku.
-        # 3. Klikni na první request -> Headers -> Request Headers -> zkopíruj hodnotu 'Cookie'.
-        # Mělo by to vypadat cca takto: "uid=12345; pass=abcdef..."
-
+        # --- COOKIES ---
         self.cookie_string = "uid=753897; pass=28058f259d407b66934f18ec5284f101"
 
         # Hlavičky, aby si server myslel, že jsme prohlížeč
@@ -33,18 +28,24 @@ class TorrentManager:
         self._connect()
 
     def _connect(self):
-        """Bezpečné připojení k Transmission RPC."""
+        """Bezpečné připojení k Transmission RPC s totálním debugem."""
         try:
+            # Tady si vypíšeme, s čím se to reálně snaží spojit
             self.client = Client(
                 host=self.host,
                 port=self.port,
                 username=self.username,
                 password=self.password,
-                timeout=2
+                timeout=10
             )
-            print("✅ Připojeno k Transmission.")
+
+            session = self.client.get_session()
+            print(f"✅SPOJENÍ OK! Verze Transmission: {session.version}")
             return True
-        except Exception:
+
+        except Exception as e:
+            # TADY se dozvíme pravdu
+            print(f"Transmission nás vyhodil. Důvod: {type(e).__name__}: {e}")
             self.client = None
             return False
 

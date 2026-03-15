@@ -1,24 +1,58 @@
-# Ignoruj všechny zipy a archivy
-*.zip
-*.rar
-*.tar
-*.gz
-
-# MacOS balast (když máš ten M4 Pro)
-.DS_Store
-
-# Next.js / Node (Frontend)
-node_modules/
-.next/
+# =========================
+# 🔒 Tajnosti a Databáze
+# =========================
 .env
-.env.local
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+mediaos.db
+*.sqlite3
+*.db
 
-# Python (Backend)
+# =========================
+# 🐍 Backend (Python / FastAPI)
+# =========================
 __pycache__/
 *.py[cod]
 *$py.class
 venv/
+env/
+.venv/
+*.log
+
+# =========================
+# ⚛️ Frontend (Next.js / Node)
+# =========================
+node_modules/
+.next/
+out/
+build/
+.pnp.*
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# =========================
+# 🎬 Uživatelská data a Média
+# =========================
+# Ignorujeme reálné složky s filmy, ať si nezaplníš Git!
+media/
+downloads/
+complete/
+incomplete/
+
+# Pojistka, kdybys nějaký film omylem zkopíroval jinam:
+*.mkv
+*.avi
+*.torrent
+
+# =========================
+# 🖥️ Systémové soubory (Mac/Windows)
+# =========================
+.DS_Store
+Thumbs.db
+
+# Ignoruj lokální média a virtuální prostředí
+backend/media/
+backend/venv/
+frontend/node_modules/
+frontend/.next/
+.git/
 .env
