@@ -23,7 +23,7 @@ export function MovieCard({ data, onClick }: MovieCardProps) {
 
   return (
     <Card
-      className="p-0 w-64 h-4/7 gap-2 hover:scale-105 hover:shadow-xl transition-all duration-200 cursor-pointer overflow-hidden group bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
+      className="p-0 w-64 gap-2 hover:scale-105 hover:shadow-xl transition-all duration-200 cursor-pointer overflow-hidden group bg-white dark:bg-neutral-900 border-neutral-200 dark:border-neutral-800"
       onClick={() => onClick(data)}
     >
       <div className="relative w-full h-80 bg-neutral-100 flex items-center justify-center overflow-hidden">

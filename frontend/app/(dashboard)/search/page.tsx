@@ -178,7 +178,7 @@ export default function Search() {
 
       {/* --- VÝSLEDKY --- */}
       <div 
-        className={`w-full px-4 flex flex-wrap justify-center gap-6 transition-all duration-500 mt-24 md:mt-32 h-full 
+        className={`w-full px-4 flex flex-wrap justify-center gap-6 transition-all duration-500 mt-24 md:mt-32 max-h-full
         ${!hasSearched ? "opacity-0 pointer-events-none" : 
           isSearching ? "blur-md opacity-40 pointer-events-none grayscale-[30%]" : "opacity-100"}`}
       >
