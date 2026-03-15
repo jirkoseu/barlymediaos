@@ -25,8 +25,7 @@ import { Button } from "@/components/ui/button";
 import { MovieCard } from "@/components/layout/movie-card"; 
 import { SearchResultItem } from "@/lib/types";
 import LoadingAnimation from "@/components/layout/loading-anim";
-import { link } from "node:fs/promises";
-import { toast } from "sonner"
+import { toast } from "sonner";
 
 // Typy zpráv ze streamu (necháme lokálně, týkají se jen logiky parseru)
 type StreamMessage = 
@@ -41,14 +40,11 @@ export default function Search() {
   const [statusMessage, setStatusMessage] = useState(""); 
   const [hasSearched, setHasSearched] = useState(false);
   const [isTdownloading, setisTdownloading] = useState(false);
-  const [newMagnet, setNewMagnet] = useState<string>('');
   
-
-
   const [selectedMovie, setSelectedMovie] = useState<SearchResultItem | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  // 🎨 Barvy tagů pro DIALOG (zde je stále potřebujeme)
+  // 🎨 Barvy tagů pro DIALOG
   const tagTypeColors = {
     year: "dark:bg-blue-800 dark:text-blue-400 text-blue-500 bg-blue-100",
     language: "dark:bg-green-700 dark:text-green-400 text-green-500 bg-green-100",
@@ -61,11 +57,17 @@ export default function Search() {
     if (!query.trim()) return;
 
     setSearching(true);
-    setResults([]);
+    // Pokud chceš, aby předchozí výsledky zůstaly rozmazané pod animací, 
+    // NEmaž je hned. Místo setResults([]) je necháme, překreslí se až přijdou nová data.
+    if (results.length === 0) setResults([]); 
+    
     setStatusMessage("Starting engines...");
     setHasSearched(true);
 
     try {
+      // Vymazání starých výsledků těsně před startem streamu, aby naběhly čistě ty nové
+      setResults([]); 
+      
       const encodedQuery = encodeURIComponent(query);
       const response = await fetch(`http://${TARGET_URL}/search?query=${encodedQuery}`);
       if (!response.body) throw new Error("ReadableStream not supported.");
@@ -130,12 +132,12 @@ export default function Search() {
   };
   
   return (
-    <main className="h-full w-full flex flex-col items-center justify-center relative pt-4 md:pt-0">
+    <main className="h-full w-full flex flex-col items-center justify-center relative pt-4 md:pt-0 pb-10">
       
       {/* --- SEARCH INPUT --- */}
-      <div className={`z-20 flex flex-col items-center justify-center gap-3 w-full max-w-2xl px-4 transition-all duration-500 sticky top-4 md:absolute ${isSearching || hasSearched ? "md:top-0" : "md:top-1/3"}`}>
+      <div className={`z-40 flex flex-col items-center justify-center gap-3 w-full max-w-2xl px-4 transition-all duration-500 sticky top-4 md:absolute ${isSearching || hasSearched ? "md:top-0" : "md:top-1/3"}`}>
         <form onSubmit={handleSearch} className="w-full flex justify-center">
-          <InputGroup className={`z-10 w-full transition-all duration-300 shadow-lg bg-background ${isSearching ? "opacity-90" : ""}`}>
+          <InputGroup className={`z-10 w-full transition-all duration-300 shadow-lg bg-background ${isSearching ? "opacity-90 ring-2 ring-primary/20" : ""}`}>
             
             <InputGroupAddon className="pl-2 sm:pl-4">
               {isSearching ? <Spinner className="h-5 w-5 text-neutral-400" /> : <SearchIcon className="h-5 w-5 text-neutral-400" />}
@@ -153,7 +155,7 @@ export default function Search() {
               <InputGroupButton 
                 type="submit"
                 disabled={isSearching}
-                className="hidden sm:flex" // Textové tlačítko schováme na mobilu, necháme uživatele ťuknout na 'Hledat' na klávesnici
+                className="hidden sm:flex"
               >
                 Search
               </InputGroupButton>
@@ -162,14 +164,24 @@ export default function Search() {
           </InputGroup>
         </form>
 
-        <div className={`z-0 text-xs sm:text-sm dark:bg-neutral-800 p-1 px-3 rounded-full dark:border-neutral-700 border text-neutral-500 transition-all duration-500 opacity-0 shadow-sm ${isSearching ? "opacity-100" : "-mt-10 opacity-0"}`}>
+        <div className={`z-0 text-xs sm:text-sm bg-neutral-100 dark:bg-neutral-800 p-1 px-3 rounded-full dark:border-neutral-700 border text-neutral-500 transition-all duration-500 shadow-sm ${isSearching ? "opacity-100" : "-mt-10 opacity-0 pointer-events-none"}`}>
           <span>{statusMessage}</span>
         </div>
       </div>
 
+      {/* --- LOADING ANIMATION OVERLAY --- */}
+      {isSearching && (
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none mt-10">
+          <LoadingAnimation />
+        </div>
+      )}
+
       {/* --- VÝSLEDKY --- */}
-      {/* Zde přidán 'mt-24 md:mt-32' a 'px-4' aby výsledky nevlezly pod fixovaný searchbar na mobilu */}
-      <div className={`w-full px-4 flex flex-wrap justify-center gap-6 transition-all duration-500 mt-24 md:mt-32 h-full ${isSearching || hasSearched ? "opacity-100" : "opacity-0 pointer-events-none"}`}>
+      <div 
+        className={`w-full px-4 flex flex-wrap justify-center gap-6 transition-all duration-500 mt-24 md:mt-32 h-full 
+        ${!hasSearched ? "opacity-0 pointer-events-none" : 
+          isSearching ? "blur-md opacity-40 pointer-events-none grayscale-[30%]" : "opacity-100"}`}
+      >
         {!isSearching && hasSearched && results.length === 0 && (
            <div className="text-neutral-400 text-lg mt-10">Nic jsme nenašli.</div>
         )}
@@ -183,10 +195,9 @@ export default function Search() {
         ))}
       </div>
       
-      {isSearching && <LoadingAnimation />} {/* Prostor pro stavovou zprávu */}
-      
-      {/* --- DIALOG (Zatím necháme zde) --- */}
+      {/* --- DIALOG --- */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        {/* ... (Tvoje původní dialog content bez změn) ... */}
         <DialogContent className="w-full sm:max-w-4xl h-2/3 p-0 overflow-hidden flex flex-col sm:flex-row bg-white dark:bg-neutral-950">
             {selectedMovie && (
             <>
@@ -208,10 +219,8 @@ export default function Search() {
                   </div>
                 </DialogHeader>
                 <DialogDescription className="text-neutral-600 dark:text-neutral-300 text-base mt-2">
-                  {/* Změna <p> na <span> s display: block (nebo jen prostý text, pokud nepotřebuješ stylovat) */}
                   <span>File is ready to download.</span>
                   
-                  {/* Druhý odstavec také změníme na span + block, aby fungoval margin (mt-4) */}
                   <span className="block text-xs text-neutral-400 mt-4 select-all">
                     Source: {selectedMovie.url}
                   </span>

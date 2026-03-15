@@ -301,7 +301,7 @@ export default function DashboardPage() {
                   <Table>
                     <TableHeader className="hidden md:table-header-group">
                       <TableRow className="border-b hover:bg-transparent">
-                        <TableHead className="w-[45%] py-3 text-xs uppercase font-bold tracking-wider">Name</TableHead>
+                        <TableHead className="w-[45%] py-3 text-xs uppercase font-bold tracking-wider pl-4">Name</TableHead>
                         <TableHead className="py-3 text-xs uppercase font-bold tracking-wider">Status</TableHead>
                         <TableHead className="w-[25%] py-3 text-xs uppercase font-bold tracking-wider">Progress</TableHead>
                         <TableHead className="text-right py-3 text-xs uppercase font-bold tracking-wider pr-6">Speed</TableHead>
