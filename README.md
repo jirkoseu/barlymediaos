@@ -39,7 +39,7 @@ Otevřete si terminál (Příkazový řádek / PowerShell / Terminal) a stáhně
 git clone <ZDE_VLOZTE_ODKAZ_NA_VAS_GIT_REPOZITAR>
 
 # Přesunutí do složky projektu
-cd barlyMediaOS_Maturita
+cd barlyMediaOS
 ```
 
 **Poznámka:**  
